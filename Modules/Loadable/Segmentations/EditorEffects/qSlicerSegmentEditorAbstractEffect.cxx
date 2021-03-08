@@ -258,6 +258,14 @@ void qSlicerSegmentEditorAbstractEffect::modifySegmentByLabelmap(vtkMRMLSegmenta
 {
   Q_D(qSlicerSegmentEditorAbstractEffect);
 
+  auto start = std::chrono::high_resolution_clock::now();
+  auto end = start;
+  auto startMS = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+  qInfo() << ": qSlicerSegmentEditorAbstractEffect::modifySegmentByLabelmap << START : " << startMS.count() << " ms";
+
+
+
+
   vtkMRMLSegmentEditorNode* parameterSetNode = this->parameterSetNode();
   if (!parameterSetNode)
     {
@@ -636,6 +644,11 @@ void qSlicerSegmentEditorAbstractEffect::modifySegmentByLabelmap(vtkMRMLSegmenta
         }
       }
     }
+
+
+  end = std::chrono::high_resolution_clock::now();
+  auto endMS = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+  qInfo() << ": qSlicerSegmentEditorAbstractEffect::modifySegmentByLabelmap << END : " << endMS.count() << " ms";
 }
 
 //-----------------------------------------------------------------------------
