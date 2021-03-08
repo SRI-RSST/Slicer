@@ -284,7 +284,7 @@ bool vtkBinaryLabelmapToClosedSurfaceConversionRule::CreateClosedSurface(vtkOrie
   // Get conversion parameters
   double decimationFactor = vtkVariant(this->ConversionParameters[GetDecimationFactorParameterName()].first).ToDouble();
   double smoothingFactor = vtkVariant(this->ConversionParameters[GetSmoothingFactorParameterName()].first).ToDouble();
-  int computeSurfaceNormals = vtkVariant(this->ConversionParameters[GetComputeSurfaceNormalsParameterName()].first).ToInt();
+  int computeSurfaceNormals = 0;//vtkVariant(this->ConversionParameters[GetComputeSurfaceNormalsParameterName()].first).ToInt();
 
 #if VTK_MAJOR_VERSION >= 9 || (VTK_MAJOR_VERSION >= 8 && VTK_MINOR_VERSION >= 2)
   vtkNew<vtkDiscreteFlyingEdges3D> marchingCubes;
@@ -293,7 +293,7 @@ bool vtkBinaryLabelmapToClosedSurfaceConversionRule::CreateClosedSurface(vtkOrie
 #endif
   marchingCubes->SetInputData(binaryLabelmapWithIdentityGeometry);
   marchingCubes->ComputeGradientsOff();
-  marchingCubes->ComputeNormalsOff(); // While computing normals is faster using the flying edges filter,
+  marchingCubes->ComputeNormalsOn(); // While computing normals is faster using the flying edges filter,
   // it results in incorrect normals in meshes from shared labelmaps marchingCubes->ComputeScalarsOn();
 
   int valueIndex = 0;
