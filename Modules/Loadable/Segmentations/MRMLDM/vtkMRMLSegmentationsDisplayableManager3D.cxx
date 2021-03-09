@@ -49,6 +49,7 @@
 #include <vtkTransformPolyDataFilter.h>
 #include <vtkGeneralTransform.h>
 #include <vtkCellPicker.h>
+#include <vtkQuadricLODActor.h>
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro ( vtkMRMLSegmentationsDisplayableManager3D );
@@ -65,7 +66,7 @@ public:
 
     Pipeline()
       {
-      this->Actor = vtkSmartPointer<vtkActor>::New();
+      this->Actor = vtkSmartPointer<vtkQuadricLODActor>::New();
       vtkNew<vtkPolyDataMapper> mapper;
       mapper->SetScalarVisibility(false); // ignore any scalars that an input mesh may contain
       this->Actor->SetMapper(mapper.GetPointer());
@@ -77,7 +78,7 @@ public:
       mapper->SetInputConnection(this->ModelWarper->GetOutputPort());
       }
 
-    vtkSmartPointer<vtkActor> Actor;
+    vtkSmartPointer<vtkQuadricLODActor> Actor;
     vtkSmartPointer<vtkGeneralTransform> NodeToWorldTransform;
     vtkSmartPointer<vtkTransformPolyDataFilter> ModelWarper;
     };
