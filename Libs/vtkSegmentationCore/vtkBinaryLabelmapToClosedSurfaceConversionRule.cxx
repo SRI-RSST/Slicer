@@ -28,11 +28,12 @@
 #include <vtkVersion.h> // must precede reference to VTK_MAJOR_VERSION
 #include <vtkCompositeDataGeometryFilter.h>
 #include <vtkCompositeDataIterator.h>
-#include <vtkDecimatePro.h>
 #if VTK_MAJOR_VERSION >= 9 || (VTK_MAJOR_VERSION >= 8 && VTK_MINOR_VERSION >= 2)
   #include <vtkDiscreteFlyingEdges3D.h>
+  #include <vtkBinnedDecimation.h>
 #else
   #include <vtkDiscreteMarchingCubes.h>
+  #include <vtkDecimatePro.h>
 #endif
 #include <vtkExtractSelectedThresholds.h>
 #include <vtkGeometryFilter.h>
@@ -282,7 +283,7 @@ bool vtkBinaryLabelmapToClosedSurfaceConversionRule::CreateClosedSurface(vtkOrie
   binaryLabelmapWithIdentityGeometry->SetSpacing(1.0, 1.0, 1.0);
 
   // Get conversion parameters
-  double decimationFactor = vtkVariant(this->ConversionParameters[GetDecimationFactorParameterName()].first).ToDouble();
+  double decimationFactor = 0.7;//vtkVariant(this->ConversionParameters[GetDecimationFactorParameterName()].first).ToDouble();
   double smoothingFactor = vtkVariant(this->ConversionParameters[GetSmoothingFactorParameterName()].first).ToDouble();
   int computeSurfaceNormals = 0;//vtkVariant(this->ConversionParameters[GetComputeSurfaceNormalsParameterName()].first).ToInt();
 
@@ -323,15 +324,27 @@ bool vtkBinaryLabelmapToClosedSurfaceConversionRule::CreateClosedSurface(vtkOrie
   // Decimate
   if (decimationFactor > 0.0)
     {
-    vtkSmartPointer<vtkDecimatePro> decimator = vtkSmartPointer<vtkDecimatePro>::New();
-    decimator->SetInputData(processingResult);
-    decimator->SetFeatureAngle(60);
-    decimator->SplittingOff();
-    decimator->PreserveTopologyOn();
-    decimator->SetMaximumError(1);
-    decimator->SetTargetReduction(decimationFactor);
-    decimator->Update();
-    processingResult = decimator->GetOutput();
+    if (decimationFactor >= 1.0)
+      decimationFactor = 0.9; //decimationFactor is expected to be within 0.0 - 1.0
+
+    #if VTK_MAJOR_VERSION >= 9 || (VTK_MAJOR_VERSION >= 8 && VTK_MINOR_VERSION >= 2)
+      vtkSmartPointer<vtkBinnedDecimation> binDecimator = vtkSmartPointer<vtkBinnedDecimation>::New();
+      binDecimator->SetInputData(processingResult);
+      binDecimator->SetNumberOfDivisions(decimationFactor * 100, decimationFactor * 100, decimationFactor * 100);
+      binDecimator->SetPointGenerationModeToBinAverages();
+      binDecimator->Update();
+      processingResult = binDecimator->GetOutput();
+    #else
+      vtkSmartPointer<vtkDecimatePro> decimator = vtkSmartPointer<vtkDecimatePro>::New();
+      decimator->SetInputData(processingResult);
+      decimator->SetFeatureAngle(60);
+      decimator->SplittingOff();
+      decimator->PreserveTopologyOn();
+      decimator->SetMaximumError(1);
+      decimator->SetTargetReduction(decimationFactor);
+      decimator->Update();
+      processingResult = decimator->GetOutput();
+    #endif
     }
 
   if (smoothingFactor > 0)
