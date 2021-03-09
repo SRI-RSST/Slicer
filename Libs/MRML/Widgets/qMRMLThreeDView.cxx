@@ -273,7 +273,7 @@ qMRMLThreeDView::qMRMLThreeDView(QWidget* _parent) : Superclass(_parent)
   renderWindowInteractor->AddObserver(vtkCommand::MouseWheelBackwardEvent, clickCallback);
   renderWindowInteractor->AddObserver(vtkCommand::InteractionEvent, clickCallback);
   renderWindowInteractor->AddObserver(vtkCommand::KeyPressEvent, clickCallback);
-  renderWindowInteractor->SetDesiredUpdateRate(5);
+  //renderWindowInteractor->SetDesiredUpdateRate(5);
 }
 
 // --------------------------------------------------------------------------
